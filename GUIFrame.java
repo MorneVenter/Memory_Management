@@ -8,16 +8,16 @@ public class GUIFrame extends JFrame
 {
     private JButton startButton;
     private JPanel container;
-    private int windowX=1000, windowY=500;
+    private int windowX=600, windowY=900;
     private JSlider slotValue;
-    private int TotalMemory = 64;
+    private int TotalMemory = 16;
     private JPanel controlPanel;
 
     public GUIFrame()
     {
       setTitle("Threading");
   		setSize(windowX,windowY);
-  		setResizable(false);
+  		//setResizable(false);
   		getContentPane().setBackground(Color.darkGray);
   		setDefaultCloseOperation(EXIT_ON_CLOSE);
   		setLayout(new FlowLayout());
@@ -32,19 +32,30 @@ public class GUIFrame extends JFrame
       } });
   		startButton.setText("Add to Memory");
   		startButton.setBackground(Color.white);
-  		startButton.setPreferredSize(new Dimension(250,40));
+  		startButton.setPreferredSize(new Dimension(150,40));
 
       container = new JPanel();
       container.setBackground(Color.darkGray);
-		  container.setPreferredSize(new Dimension(650,500));
+		  container.setPreferredSize(new Dimension(550,750));
+      container.setBorder(BorderFactory.createLineBorder(Color.black));
+
 
       slotValue = new JSlider();
-      slotValue = new JSlider(JSlider.HORIZONTAL,1, TotalMemory, 15);
-      slotValue.setMajorTickSpacing(16);
-      slotValue.setMinorTickSpacing(4);
+      slotValue = new JSlider(JSlider.HORIZONTAL,0, TotalMemory, TotalMemory/4);
+      slotValue.setMajorTickSpacing(TotalMemory/4);
+      slotValue.setMinorTickSpacing(1);
       slotValue.setPaintTicks(true);
+      slotValue.setPaintLabels(true);
+      slotValue.setPreferredSize(new Dimension(325,60));
+      slotValue.setBackground(Color.gray);
+      slotValue.setForeground(Color.white);
+
 
       controlPanel = new JPanel();
+      controlPanel.setBackground(Color.gray);
+      controlPanel.setPreferredSize(new Dimension(550,75));
+      controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+      controlPanel.setLayout(new GridLayout(0,2,2,2));
 
       /////////////////
       add(container);

@@ -12,9 +12,14 @@ public class GUIFrame extends JFrame
     private JSlider slotValue;
     private int TotalMemory = 16;
     private JPanel controlPanel;
+    private pageFile[] myMemory;
+    private JPanel memoryPanel;
 
     public GUIFrame()
     {
+
+      myMemory = new pageFile[TotalMemory];
+
       setTitle("Threading");
   		setSize(windowX,windowY);
   		//setResizable(false);
@@ -57,6 +62,9 @@ public class GUIFrame extends JFrame
       controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
       controlPanel.setLayout(new GridLayout(0,2,2,2));
 
+
+      initMemory();
+
       /////////////////
       add(container);
       controlPanel.add(slotValue);
@@ -64,7 +72,23 @@ public class GUIFrame extends JFrame
       add(controlPanel);
       setVisible(true);
       /////////////////
+
+
+      myMemory = new pageFile[TotalMemory];
+
+
     }
+
+
+    public void initMemory()
+    {
+      for (int x=0; x<TotalMemory; x++)
+      {
+        myMemory[x] = new pageFile();
+        container.add(myMemory[x].getBar());
+      }
+    }
+
 
     public void addToMemory()
     {

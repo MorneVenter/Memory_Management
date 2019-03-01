@@ -2,7 +2,7 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-
+import java.util.Random;
 
 public class GUIFrame extends JFrame
 {
@@ -14,18 +14,30 @@ public class GUIFrame extends JFrame
     private JPanel controlPanel;
     private pageFile[] myMemory;
     private JPanel memoryPanel;
+    private int id=0;
+    private int freeSlots;
+    private JLabel memoryText;
+
 
     public GUIFrame()
     {
+
+      memoryText = new JLabel("Total Memory: "+TotalMemory+"KB");
+      memoryText.setForeground(Color.white);
+
+      freeSlots = TotalMemory;
 
       myMemory = new pageFile[TotalMemory];
 
       setTitle("Threading");
   		setSize(windowX,windowY);
-  		//setResizable(false);
+  		setResizable(false);
   		getContentPane().setBackground(Color.darkGray);
   		setDefaultCloseOperation(EXIT_ON_CLOSE);
   		setLayout(new FlowLayout());
+
+      memoryPanel = new JPanel();
+      memoryPanel.setLayout(new GridLayout(0,1,2,2));
 
       Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		  this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
@@ -35,7 +47,7 @@ public class GUIFrame extends JFrame
       public void actionPerformed(ActionEvent e) {
           addToMemory();
       } });
-  		startButton.setText("Add to Memory");
+  		startButton.setText("Add Program");
   		startButton.setBackground(Color.white);
   		startButton.setPreferredSize(new Dimension(150,40));
 
@@ -62,19 +74,18 @@ public class GUIFrame extends JFrame
       controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
       controlPanel.setLayout(new GridLayout(0,2,2,2));
 
-
+      myMemory = new pageFile[TotalMemory];
       initMemory();
 
       /////////////////
+      add(memoryText);
       add(container);
+      container.add(memoryPanel);
       controlPanel.add(slotValue);
       controlPanel.add(startButton);
       add(controlPanel);
       setVisible(true);
       /////////////////
-
-
-      myMemory = new pageFile[TotalMemory];
 
 
     }
@@ -85,13 +96,57 @@ public class GUIFrame extends JFrame
       for (int x=0; x<TotalMemory; x++)
       {
         myMemory[x] = new pageFile();
-        container.add(myMemory[x].getBar());
+        memoryPanel.add(myMemory[x].getBar());
       }
     }
 
 
     public void addToMemory()
     {
+        int blocks = slotValue.getValue();
+        if(freeSlots<blocks)
+          {
+            JOptionPane.showMessageDialog(null,"Memory Full.");
+            return;
+          }
 
+        int p=0;
+        for (int x=0; x<myMemory.length; x++)
+        {
+            if(!myMemory[x].isOccupied)
+            {
+                boolean validSpot = true;
+                for(int k=x; k<blocks; k++)
+                {
+                  if(myMemory[k].isOccupied)
+                    validSpot = false;
+                }
+
+                if(validSpot)
+                {
+                  storeAt(blocks, x);
+                  return;
+                }
+            }
+        }
+
+    }
+
+    public void storeAt(int blocks, int start)
+    {
+      Random rand = new Random();
+      int r = rand.nextInt(255);
+      int g = rand.nextInt(255);
+      int b = rand.nextInt(255);
+      Color randomColor = new Color(r, g, b);
+
+      freeSlots-=blocks;
+      int myId= id;
+      id++;
+
+      for (int i = start; i<(start+blocks); i++)
+      {
+          myMemory[i].setActive(myId, randomColor);
+      }
     }
 }

@@ -5,13 +5,14 @@ public class pageFile
 {
   private JProgressBar bar;
   private int programID;
+  public boolean isOccupied = false;
 
   public pageFile()
   {
     bar = new JProgressBar();
 		bar.setMinimum(0);
 		bar.setMaximum(10);
-		bar.setPreferredSize(new Dimension (40,10));
+		bar.setPreferredSize(new Dimension (80,25));
     bar.setForeground(Color.white);
     bar.setValue(0);
 
@@ -25,6 +26,7 @@ public class pageFile
   public void setActive(int id, Color myBarColor)
   {
     programID=id;
+    isOccupied=true;
     bar.setForeground(myBarColor);
     bar.setValue(10);
   }
@@ -32,6 +34,7 @@ public class pageFile
   public void setInactive()
   {
     programID=-1;
+    isOccupied = false;
     bar.setForeground(Color.white);
     bar.setValue(0);
   }

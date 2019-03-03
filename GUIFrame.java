@@ -8,7 +8,7 @@ public class GUIFrame extends JFrame
 {
     private JButton startButton;
     private JPanel container;
-    private int windowX=600, windowY=900;
+    private int windowX=600, windowY=700;
     private JSlider slotValue;
     private int TotalMemory = 16;
     private JPanel controlPanel;
@@ -53,7 +53,7 @@ public class GUIFrame extends JFrame
 
       container = new JPanel();
       container.setBackground(Color.darkGray);
-		  container.setPreferredSize(new Dimension(550,750));
+		  container.setPreferredSize(new Dimension(550,550));
       container.setBorder(BorderFactory.createLineBorder(Color.black));
 
 

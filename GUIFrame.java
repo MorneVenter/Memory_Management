@@ -17,17 +17,20 @@ public class GUIFrame extends JFrame
     private int id=0;
     private int freeSlots;
     private JLabel memoryText;
-
+    private JPanel primaryMemory;
 
     public GUIFrame()
     {
 
-      memoryText = new JLabel("Total Memory: "+TotalMemory*4+"KB,  Page Size: 4KB");
-      memoryText.setForeground(Color.white);
+      memoryText = new JLabel("Total Memory: "+TotalMemory*4+"KB");
 
       freeSlots = TotalMemory;
 
       myMemory = new pageFile[TotalMemory];
+
+      primaryMemory = new JPanel();
+      primaryMemory.setLayout(new GridLayout(0,1,2,2));
+      primaryMemory.setPreferredSize(new Dimension(150,500));
 
       setTitle("Threading");
   		setSize(windowX,windowY);
@@ -37,7 +40,7 @@ public class GUIFrame extends JFrame
   		setLayout(new FlowLayout());
 
       memoryPanel = new JPanel();
-      memoryPanel.setLayout(new GridLayout(0,1,2,2));
+
 
       Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		  this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
@@ -77,9 +80,13 @@ public class GUIFrame extends JFrame
       myMemory = new pageFile[TotalMemory];
       initMemory();
 
+      JLabel pagesize =  new JLabel("Page Size: 4KB");
+
       /////////////////
-      add(memoryText);
+      primaryMemory.add(memoryText);
+      primaryMemory.add(pagesize);
       add(container);
+      memoryPanel.add(primaryMemory);
       container.add(memoryPanel);
       controlPanel.add(slotValue);
       controlPanel.add(startButton);
@@ -96,7 +103,7 @@ public class GUIFrame extends JFrame
       for (int x=0; x<TotalMemory; x++)
       {
         myMemory[x] = new pageFile();
-        memoryPanel.add(myMemory[x].getBar());
+        primaryMemory.add(myMemory[x].getBar());
       }
     }
 
@@ -106,7 +113,7 @@ public class GUIFrame extends JFrame
         int blocks = slotValue.getValue();
         if(freeSlots<blocks)
           {
-            System.out.println("Memory Full.");
+            System.out.println("Memory Full. Freeing "+(blocks-freeSlots)+" pages.");
             freeMemory(blocks - freeSlots);
           }
 
@@ -134,6 +141,11 @@ public class GUIFrame extends JFrame
     }
 
     public void freeMemory(int x)
+    {
+      freeRandomMemory(x);
+    }
+
+    public void freeRandomMemory(int x)
     {
       for (int i =0; i<x; i++ )
       {

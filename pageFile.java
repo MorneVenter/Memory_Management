@@ -27,6 +27,8 @@ public class pageFile
   {
     programID=id;
     isOccupied=true;
+    bar.setStringPainted(true);
+    bar.setString("ID: "+programID);
     bar.setForeground(myBarColor);
     bar.setValue(10);
   }
@@ -35,6 +37,8 @@ public class pageFile
   {
     programID=-1;
     isOccupied = false;
+    bar.setStringPainted(false);
+    bar.setString("");
     bar.setForeground(Color.white);
     bar.setValue(0);
   }

@@ -22,7 +22,7 @@ public class GUIFrame extends JFrame
     public GUIFrame()
     {
 
-      memoryText = new JLabel("Total Memory: "+TotalMemory+"KB");
+      memoryText = new JLabel("Total Memory: "+TotalMemory*4+"KB,  Page Size: 4KB");
       memoryText.setForeground(Color.white);
 
       freeSlots = TotalMemory;
@@ -106,47 +106,51 @@ public class GUIFrame extends JFrame
         int blocks = slotValue.getValue();
         if(freeSlots<blocks)
           {
-            JOptionPane.showMessageDialog(null,"Memory Full.");
-            return;
+            System.out.println("Memory Full.");
+            freeMemory(blocks - freeSlots);
           }
 
-        int p=0;
+        Random rand = new Random();
+        int r = rand.nextInt(255);
+        int g = rand.nextInt(255);
+        int b = rand.nextInt(255);
+        Color randomColor = new Color(r, g, b);
+
+        int myId= id;
+        id++;
+
+        int p =blocks;
+
         for (int x=0; x<myMemory.length; x++)
         {
-            if(!myMemory[x].isOccupied)
-            {
-                boolean validSpot = true;
-                for(int k=x; k<blocks; k++)
-                {
-                  if(myMemory[k].isOccupied)
-                    validSpot = false;
-                }
-
-                if(validSpot)
-                {
-                  storeAt(blocks, x);
-                  return;
-                }
-            }
+          if(!myMemory[x].isOccupied && p>0)
+          {
+            myMemory[x].setActive(myId, randomColor);
+            p--;
+            freeSlots--;
+          }
         }
 
     }
 
-    public void storeAt(int blocks, int start)
+    public void freeMemory(int x)
     {
-      Random rand = new Random();
-      int r = rand.nextInt(255);
-      int g = rand.nextInt(255);
-      int b = rand.nextInt(255);
-      Color randomColor = new Color(r, g, b);
-
-      freeSlots-=blocks;
-      int myId= id;
-      id++;
-
-      for (int i = start; i<(start+blocks); i++)
+      for (int i =0; i<x; i++ )
       {
-          myMemory[i].setActive(myId, randomColor);
+          boolean removedMem=false;
+          while(!removedMem)
+          {
+              Random rand = new Random();
+              int r = rand.nextInt(TotalMemory);
+              if(myMemory[r].isOccupied)
+              {
+                myMemory[r].setInactive();
+                freeSlots++;
+                removedMem=true;
+              }
+          }
       }
     }
+
+
 }

@@ -4,7 +4,7 @@ import javax.swing.*;
 public class pageFile
 {
   private JProgressBar bar;
-  private int programID;
+  public int programID;
   public boolean isOccupied = false;
 
   public pageFile()

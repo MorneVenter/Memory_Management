@@ -156,6 +156,7 @@ public class GUIFrame extends JFrame
               int r = rand.nextInt(TotalMemory);
               if(myMemory[r].isOccupied)
               {
+                System.out.println("Removed page at index: " + r +" from proccess ID: "+myMemory[r].programID+".");
                 myMemory[r].setInactive();
                 freeSlots++;
                 removedMem=true;

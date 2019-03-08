@@ -8,9 +8,8 @@ public class GUIFrame extends JFrame
 {
     private JButton startButton;
     private JPanel container;
-    private int windowX=600, windowY=700;
+    private int windowX=720, windowY=700;
     private JSlider slotValue;
-    private int TotalMemory = 16;
     private JPanel controlPanel;
     private pageFile[] myMemory;
     private JPanel memoryPanel;
@@ -18,21 +17,38 @@ public class GUIFrame extends JFrame
     private int freeSlots;
     private JLabel memoryText;
     private JPanel primaryMemory;
+    private JPanel secondaryStorage;
+    private int TotalMemory = 16;
+    private int totalStorage = 64;
+    private pageFile[] myStorage;
+    private JLabel storageText;
+    private int freeStorageSlots;
 
     public GUIFrame()
     {
 
       memoryText = new JLabel("Total Memory: "+TotalMemory*4+"KB");
+      storageText = new JLabel("Total Storage: "+totalStorage*4+"KB");
 
       freeSlots = TotalMemory;
+      freeStorageSlots=totalStorage;
 
       myMemory = new pageFile[TotalMemory];
+      myStorage = new pageFile[totalStorage];
 
       primaryMemory = new JPanel();
       primaryMemory.setLayout(new GridLayout(0,1,2,2));
       primaryMemory.setPreferredSize(new Dimension(150,500));
+      primaryMemory.setBorder(BorderFactory.createLineBorder(Color.black));
+      primaryMemory.setBackground(Color.gray);
 
-      setTitle("Threading");
+      secondaryStorage = new JPanel();
+      secondaryStorage.setLayout(new GridLayout(8,8));
+      secondaryStorage.setPreferredSize(new Dimension(350,250));
+      secondaryStorage.setBorder(BorderFactory.createLineBorder(Color.black));
+      secondaryStorage.setBackground(Color.gray);
+
+      setTitle("Memory Management");
   		setSize(windowX,windowY);
   		setResizable(false);
   		getContentPane().setBackground(Color.darkGray);
@@ -40,7 +56,8 @@ public class GUIFrame extends JFrame
   		setLayout(new FlowLayout());
 
       memoryPanel = new JPanel();
-
+      memoryPanel.setLayout(new GridLayout(0,2,5,5));
+      memoryPanel.setBackground(Color.darkGray);
 
       Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		  this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
@@ -56,7 +73,7 @@ public class GUIFrame extends JFrame
 
       container = new JPanel();
       container.setBackground(Color.darkGray);
-		  container.setPreferredSize(new Dimension(550,550));
+		  container.setPreferredSize(new Dimension(720,550));
       container.setBorder(BorderFactory.createLineBorder(Color.black));
 
 
@@ -79,14 +96,17 @@ public class GUIFrame extends JFrame
 
       myMemory = new pageFile[TotalMemory];
       initMemory();
+      initStorage();
 
       JLabel pagesize =  new JLabel("Page Size: 4KB");
 
       /////////////////
       primaryMemory.add(memoryText);
       primaryMemory.add(pagesize);
+      primaryMemory.add(storageText);
       add(container);
       memoryPanel.add(primaryMemory);
+      memoryPanel.add(secondaryStorage);
       container.add(memoryPanel);
       controlPanel.add(slotValue);
       controlPanel.add(startButton);
@@ -104,6 +124,15 @@ public class GUIFrame extends JFrame
       {
         myMemory[x] = new pageFile();
         primaryMemory.add(myMemory[x].getBar());
+      }
+    }
+
+    public void initStorage()
+    {
+      for (int x=0; x<totalStorage; x++)
+      {
+        myStorage[x] = new pageFile();
+        secondaryStorage.add(myStorage[x].getBar());
       }
     }
 
@@ -157,12 +186,52 @@ public class GUIFrame extends JFrame
               if(myMemory[r].isOccupied)
               {
                 System.out.println("Removed page at index: " + r +" from proccess ID: "+myMemory[r].programID+".");
+                addToStorage(myMemory[r].programID, myMemory[r].myColor);
                 myMemory[r].setInactive();
                 freeSlots++;
                 removedMem=true;
               }
           }
       }
+    }
+
+    public void addToStorage(int id, Color mycolor)
+    {
+
+      if(freeStorageSlots<1)
+      {
+        boolean removeStor=false;
+        while(!removeStor)
+        {
+          Random rand = new Random();
+          int r = rand.nextInt(totalStorage);
+          if(myStorage[r].isOccupied)
+          {
+            System.out.println("Removed page from storage at index: " + r +" from proccess ID: "+myStorage[r].programID+".");
+            myStorage[r].setInactive();
+            freeStorageSlots++;
+            removeStor=true;
+          }
+        }
+      }
+
+
+
+      boolean found = false;
+      int i=0;
+      int next=0;
+      while(!found)
+      {
+        if(!myStorage[i].isOccupied)
+        {
+          next=i;
+          found = true;
+        }
+        i++;
+      }
+
+      myStorage[next].setActive(id, mycolor);
+      freeStorageSlots--;
     }
 
 

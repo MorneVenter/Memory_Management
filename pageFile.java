@@ -6,6 +6,7 @@ public class pageFile
   private JProgressBar bar;
   public int programID;
   public boolean isOccupied = false;
+  public Color myColor;
 
   public pageFile()
   {
@@ -27,8 +28,10 @@ public class pageFile
   {
     programID=id;
     isOccupied=true;
+    myColor = myBarColor;
     bar.setStringPainted(true);
-    bar.setString("ID: "+programID);
+    bar.setString("ID:"+programID);
+    
     bar.setForeground(myBarColor);
     bar.setValue(10);
   }

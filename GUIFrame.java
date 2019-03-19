@@ -268,7 +268,7 @@ public class GUIFrame extends JFrame
               int r = rand.nextInt(TotalMemory);
               if(myMemory[r].isOccupied)
               {
-                System.out.println("Removed page at index: " + r +" from proccess ID: "+myMemory[r].programID+".");
+                System.out.println("Removed page at address: " + myMemory[r].memoryAddress +" from program ID: "+myMemory[r].programID+".");
                 addToStorage(myMemory[r].programID, myMemory[r].myColor, myMemory[r].pageNumber);
                 myMemory[r].setInactive();
                 freeSlots++;
@@ -290,7 +290,7 @@ public class GUIFrame extends JFrame
           int r = rand.nextInt(totalStorage);
           if(myStorage[r].isOccupied)
           {
-            System.out.println("Removed page from storage at index: " + r +" from proccess ID: "+myStorage[r].programID+".");
+            System.out.println("Removed page from storage at address: " + myStorage[r].memoryAddress +" from Program ID: "+myStorage[r].programID+".");
             myStorage[r].setInactive();
             freeStorageSlots++;
             removeStor=true;

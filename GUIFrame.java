@@ -11,7 +11,7 @@ public class GUIFrame extends JFrame
     private int windowX=720, windowY=700;
     private JSlider slotValue;
     private JPanel controlPanel;
-    private pageFile[] myMemory;
+    private pageFrame[] myMemory;
     private JPanel memoryPanel;
     private int id=0;
     private int freeSlots;
@@ -20,7 +20,7 @@ public class GUIFrame extends JFrame
     private JPanel secondaryStorage;
     private int TotalMemory = 16;
     private int totalStorage = 64;
-    private pageFile[] myStorage;
+    private pageFrame[] myStorage;
     private JLabel storageText;
     private int freeStorageSlots;
 
@@ -33,8 +33,8 @@ public class GUIFrame extends JFrame
       freeSlots = TotalMemory;
       freeStorageSlots=totalStorage;
 
-      myMemory = new pageFile[TotalMemory];
-      myStorage = new pageFile[totalStorage];
+      myMemory = new pageFrame[TotalMemory];
+      myStorage = new pageFrame[totalStorage];
 
       primaryMemory = new JPanel();
       primaryMemory.setLayout(new GridLayout(0,1,2,2));
@@ -94,7 +94,7 @@ public class GUIFrame extends JFrame
       controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
       controlPanel.setLayout(new GridLayout(0,2,2,2));
 
-      myMemory = new pageFile[TotalMemory];
+      myMemory = new pageFrame[TotalMemory];
       initMemory();
       initStorage();
 
@@ -120,19 +120,25 @@ public class GUIFrame extends JFrame
 
     public void initMemory()
     {
+      int kb = 0;
       for (int x=0; x<TotalMemory; x++)
       {
-        myMemory[x] = new pageFile();
+        myMemory[x] = new pageFrame(kb);
         primaryMemory.add(myMemory[x].getBar());
+        kb+=4;
+
       }
     }
 
     public void initStorage()
     {
+      int kb = TotalMemory*4;
       for (int x=0; x<totalStorage; x++)
       {
-        myStorage[x] = new pageFile();
+        myStorage[x] = new pageFrame(kb);
         secondaryStorage.add(myStorage[x].getBar());
+        kb+=4;
+
       }
     }
 

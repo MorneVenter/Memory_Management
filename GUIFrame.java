@@ -10,7 +10,7 @@ public class GUIFrame extends JFrame
 {
     private JButton startButton;
     private JPanel container;
-    private int windowX=720, windowY=775;
+    private int windowX=1200, windowY=775;
     private JSlider slotValue;
     private JPanel controlPanel;
     private pageFrame[] myMemory;
@@ -48,13 +48,13 @@ public class GUIFrame extends JFrame
 
       primaryMemory = new JPanel();
       primaryMemory.setLayout(new GridLayout(0,1,2,2));
-      primaryMemory.setPreferredSize(new Dimension(150,500));
+      primaryMemory.setPreferredSize(new Dimension(350,500));
       primaryMemory.setBorder(BorderFactory.createLineBorder(Color.black));
       primaryMemory.setBackground(Color.gray);
 
       secondaryStorage = new JPanel();
       secondaryStorage.setLayout(new GridLayout(8,8));
-      secondaryStorage.setPreferredSize(new Dimension(350,250));
+      secondaryStorage.setPreferredSize(new Dimension(750,250));
       secondaryStorage.setBorder(BorderFactory.createLineBorder(Color.black));
       secondaryStorage.setBackground(Color.gray);
 
@@ -66,7 +66,6 @@ public class GUIFrame extends JFrame
   		setLayout(new FlowLayout());
 
       memoryPanel = new JPanel();
-      memoryPanel.setLayout(new GridLayout(0,2,5,5));
       memoryPanel.setBackground(Color.darkGray);
 
       Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -83,7 +82,7 @@ public class GUIFrame extends JFrame
 
       container = new JPanel();
       container.setBackground(Color.darkGray);
-		  container.setPreferredSize(new Dimension(720,550));
+		  container.setPreferredSize(new Dimension(1180,550));
       container.setBorder(BorderFactory.createLineBorder(Color.black));
 
 
@@ -188,11 +187,14 @@ public class GUIFrame extends JFrame
     {
         pageList.removeAllItems();
         selectedProgram = programList.getSelectedIndex();
-        System.out.println(selectedProgram+"");
+        int k =1;
         for (int x=0; x<listOfPages.size(); x++)
         {
             if(selectedProgram==listOfPages.get(x))
-              pageList.addItem("Page " + listOfPages.get(x));
+            {
+              pageList.addItem("Page " +k);
+              k++;
+            }
         }
     }
 
@@ -209,6 +211,9 @@ public class GUIFrame extends JFrame
     public void addToMemory()
     {
         int blocks = slotValue.getValue();
+        if(blocks<=0)
+        return;
+
         if(freeSlots<blocks)
           {
             System.out.println("Memory Full. Freeing "+(blocks-freeSlots)+" pages.");
@@ -233,12 +238,13 @@ public class GUIFrame extends JFrame
         fillProgramList();
 
         int p =blocks;
-
+        int i =  1;
         for (int x=0; x<myMemory.length; x++)
         {
           if(!myMemory[x].isOccupied && p>0)
           {
-            myMemory[x].setActive(myId, randomColor);
+            myMemory[x].setActive(myId, randomColor, i);
+            i++;
             p--;
             freeSlots--;
           }
@@ -263,7 +269,7 @@ public class GUIFrame extends JFrame
               if(myMemory[r].isOccupied)
               {
                 System.out.println("Removed page at index: " + r +" from proccess ID: "+myMemory[r].programID+".");
-                addToStorage(myMemory[r].programID, myMemory[r].myColor);
+                addToStorage(myMemory[r].programID, myMemory[r].myColor, myMemory[r].pageNumber);
                 myMemory[r].setInactive();
                 freeSlots++;
                 removedMem=true;
@@ -272,7 +278,7 @@ public class GUIFrame extends JFrame
       }
     }
 
-    public void addToStorage(int id, Color mycolor)
+    public void addToStorage(int id, Color mycolor, int pagenum)
     {
 
       if(freeStorageSlots<1)
@@ -307,7 +313,7 @@ public class GUIFrame extends JFrame
         i++;
       }
 
-      myStorage[next].setActive(id, mycolor);
+      myStorage[next].setActive(id, mycolor, pagenum);
       freeStorageSlots--;
     }
 

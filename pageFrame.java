@@ -8,6 +8,7 @@ public class pageFrame
   public boolean isOccupied = false;
   public Color myColor;
   public int memoryAddress;
+  public int pageNumber;
 
   public pageFrame(int mem)
   {
@@ -19,7 +20,7 @@ public class pageFrame
     bar.setValue(0);
     bar.setStringPainted(true);
     memoryAddress = mem;
-    bar.setString("A"+ memoryAddress+"");
+    bar.setString(memoryAddress+"");
   }
 
   public JProgressBar getBar()
@@ -27,12 +28,13 @@ public class pageFrame
     return bar;
   }
 
-  public void setActive(int id, Color myBarColor)
+  public void setActive(int id, Color myBarColor, int pageNum)
   {
+    pageNumber = pageNum;
     programID=id;
     isOccupied=true;
     myColor = myBarColor;
-    bar.setString("A"+memoryAddress+":\r\n ID:"+programID);
+    bar.setString(memoryAddress+": Pr"+programID+"-"+pageNumber);
     bar.setForeground(myBarColor);
     bar.setValue(10);
   }
@@ -42,7 +44,7 @@ public class pageFrame
     programID=-1;
     isOccupied = false;
     //bar.setStringPainted(false);
-    bar.setString("0x"+memoryAddress+"");
+    bar.setString(memoryAddress+"");
     bar.setForeground(Color.white);
     bar.setValue(0);
   }

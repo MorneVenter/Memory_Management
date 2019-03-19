@@ -3,12 +3,14 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
 
 public class GUIFrame extends JFrame
 {
     private JButton startButton;
     private JPanel container;
-    private int windowX=720, windowY=700;
+    private int windowX=720, windowY=775;
     private JSlider slotValue;
     private JPanel controlPanel;
     private pageFrame[] myMemory;
@@ -23,9 +25,17 @@ public class GUIFrame extends JFrame
     private pageFrame[] myStorage;
     private JLabel storageText;
     private int freeStorageSlots;
+    private JComboBox programList;
+    private JComboBox pageList;
+    private List<Integer> listOfPages;
+    private List<Integer> listOfPrograms;
+    private int selectedProgram=0;
 
     public GUIFrame()
     {
+
+      listOfPages = new ArrayList<Integer>();
+      listOfPrograms = new ArrayList<Integer>();
 
       memoryText = new JLabel("Total Memory: "+TotalMemory*4+"KB");
       storageText = new JLabel("Total Storage: "+totalStorage*4+"KB");
@@ -100,6 +110,31 @@ public class GUIFrame extends JFrame
 
       JLabel pagesize =  new JLabel("Page Size: 4KB");
 
+      JPanel readPanel = new JPanel();
+      programList = new JComboBox(); //add change event\
+      programList.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+          fillPageList();
+      } });
+      pageList = new JComboBox();
+
+      JButton readButton = new JButton("Read");
+      readButton.setBackground(Color.white);
+      readButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+          readPage();
+      } });
+
+
+      readPanel.setPreferredSize(new Dimension(550,75));
+      readPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+      readPanel.setLayout(new GridLayout(0,3,2,2));
+      readPanel.setBackground(Color.gray);
+
+      readPanel.add(programList);
+      readPanel.add(pageList);
+      readPanel.add(readButton);
+
       /////////////////
       primaryMemory.add(memoryText);
       primaryMemory.add(pagesize);
@@ -111,6 +146,7 @@ public class GUIFrame extends JFrame
       controlPanel.add(slotValue);
       controlPanel.add(startButton);
       add(controlPanel);
+      add(readPanel);
       setVisible(true);
       /////////////////
 
@@ -142,6 +178,33 @@ public class GUIFrame extends JFrame
       }
     }
 
+    public void readPage()
+    {
+
+    }
+
+
+    public void fillPageList()
+    {
+        pageList.removeAllItems();
+        selectedProgram = programList.getSelectedIndex();
+        System.out.println(selectedProgram+"");
+        for (int x=0; x<listOfPages.size(); x++)
+        {
+            if(selectedProgram==listOfPages.get(x))
+              pageList.addItem("Page " + listOfPages.get(x));
+        }
+    }
+
+    public void fillProgramList()
+    {
+        programList.removeAllItems();
+
+        for (int x=0; x<listOfPrograms.size(); x++)
+        {
+            programList.addItem("Program " + listOfPrograms.get(x));
+        }
+    }
 
     public void addToMemory()
     {
@@ -160,6 +223,14 @@ public class GUIFrame extends JFrame
 
         int myId= id;
         id++;
+
+        listOfPrograms.add(myId);
+        for (int x = 0; x<blocks; x++)
+        {
+            listOfPages.add(myId);
+        }
+
+        fillProgramList();
 
         int p =blocks;
 

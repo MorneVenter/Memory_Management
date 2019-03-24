@@ -179,6 +179,57 @@ public class GUIFrame extends JFrame
 
     public void readPage()
     {
+      int readProgram =programList.getSelectedIndex();
+      int readPage =pageList.getSelectedIndex() + 1;
+      boolean found = false;
+      int pageIndex=0;
+      int whereFound =0; // 0=memory 1=secondary storage
+
+      for (int i = 0; i<myMemory.length; i++)
+      {
+        if(myMemory[i].programID == readProgram && myMemory[i].pageNumber == readPage)
+        {
+          found = true;
+          pageIndex =i;
+          whereFound=0;
+        }
+      }
+
+      if(!found)
+      {
+        for (int i = 0; i<myStorage.length; i++)
+        {
+          if(myStorage[i].programID == readProgram && myStorage[i].pageNumber == readPage)
+          {
+            found = true;
+            pageIndex =i;
+            whereFound=1;
+          }
+        }
+      }
+
+      System.out.println("\n=================READ RESULTS=================");
+      System.out.println("Program: " + readProgram + ", Page: " + readPage);
+
+      if(found)
+      {
+        if(whereFound==0)
+        {
+          System.out.println("Page found in primary storage.\nVirtual Address: " + myMemory[pageIndex].memoryAddress);
+        }
+        else if(whereFound==1)
+        {
+          System.out.println("PAGE FAULT");
+          System.out.println("Page found in secondary storage.\nVirtual Address: " + myStorage[pageIndex].memoryAddress);
+        }
+
+      }
+      else
+      {
+        System.out.println("FATAL ERROR\nPAGE NOT FOUND\nPANIC");
+      }
+
+      System.out.println("==============================================\n");
 
     }
 

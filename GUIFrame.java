@@ -30,15 +30,24 @@ public class GUIFrame extends JFrame
     private List<Integer> listOfPages;
     private List<Integer> listOfPrograms;
     private int selectedProgram=0;
+    //stats
+    private int totalReads=0;
+    private int totalPageFualts=0;
+    private int totalMissingPage=0;
+    private int totalPageFound=0;
+    private int pagesInMemory=0;
+    private int pagesInStorage=0;
+    private long startTime;
 
     public GUIFrame()
     {
-
+      startTime = System.nanoTime();
       listOfPages = new ArrayList<Integer>();
       listOfPrograms = new ArrayList<Integer>();
 
       memoryText = new JLabel("Total Memory: "+TotalMemory*4+"KB");
       storageText = new JLabel("Total Storage: "+totalStorage*4+"KB");
+      JLabel rangeText = new JLabel("Memory 0-" + (TotalMemory*4 -1) + ";      Storage " + TotalMemory*4 + "-" + ((totalStorage+TotalMemory)*4));
 
       freeSlots = TotalMemory;
       freeStorageSlots=totalStorage;
@@ -124,6 +133,14 @@ public class GUIFrame extends JFrame
           readPage();
       } });
 
+      JButton reportButton = new JButton("Report");
+      reportButton.setBackground(Color.white);
+      reportButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+          report();
+      } });
+      reportButton.setPreferredSize(new Dimension(150,75));
+
 
       readPanel.setPreferredSize(new Dimension(550,75));
       readPanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -134,10 +151,12 @@ public class GUIFrame extends JFrame
       readPanel.add(pageList);
       readPanel.add(readButton);
 
+
       /////////////////
       primaryMemory.add(memoryText);
       primaryMemory.add(pagesize);
       primaryMemory.add(storageText);
+      primaryMemory.add(rangeText);
       add(container);
       memoryPanel.add(primaryMemory);
       memoryPanel.add(secondaryStorage);
@@ -146,12 +165,30 @@ public class GUIFrame extends JFrame
       controlPanel.add(startButton);
       add(controlPanel);
       add(readPanel);
+      add(reportButton);
       setVisible(true);
       /////////////////
 
 
     }
 
+
+    public void report()
+    {
+
+      long timeNow = ((System.nanoTime()-startTime)/1000000000);
+      String output = "===============REPORT===============\n"+
+      "Total number of reads: " + totalReads +
+      "\nTotal number of page faults: " + totalPageFualts +
+      "\nTotal number of missing pages: " + totalMissingPage +
+      "\nTotal number of pages found: " + totalPageFound +
+      "\nTotal pages found in memory: " + pagesInMemory +
+      "\nTotal pages found in secondary storage: " + pagesInStorage +
+      "\nElapsed time: " + timeNow + " seconds" +
+      "\n====================================";
+
+      JOptionPane.showMessageDialog(null, output);
+    }
 
     public void initMemory()
     {
@@ -179,6 +216,7 @@ public class GUIFrame extends JFrame
 
     public void readPage()
     {
+      totalReads++;
       int readProgram =programList.getSelectedIndex();
       int readPage =pageList.getSelectedIndex() + 1;
       boolean found = false;
@@ -207,30 +245,39 @@ public class GUIFrame extends JFrame
           }
         }
       }
+      String output ="";
+      output+="\n=================READ RESULTS=================\n";
 
-      System.out.println("\n=================READ RESULTS=================");
-      System.out.println("Program: " + readProgram + ", Page: " + readPage);
+      output += "Program: " + readProgram + ", Page: " + readPage+"\n";
 
       if(found)
       {
         if(whereFound==0)
         {
-          System.out.println("Page found in primary storage.\nVirtual Address: " + myMemory[pageIndex].memoryAddress);
+          output += "Page found in primary storage.\nVirtual Address: " + myMemory[pageIndex].memoryAddress+"\n";
+          totalPageFound++;
+          pagesInMemory++;
         }
         else if(whereFound==1)
         {
-          System.out.println("PAGE FAULT");
-          System.out.println("Page found in secondary storage.\nVirtual Address: " + myStorage[pageIndex].memoryAddress);
+          totalPageFualts++;
+          totalPageFound++;
+          pagesInStorage++;
+          output += "PAGE FAULT\n";
+          output+= "Page found in secondary storage.\nVirtual Address: " + myStorage[pageIndex].memoryAddress + "\n";
         }
 
       }
       else
       {
-        System.out.println("FATAL ERROR\nPAGE NOT FOUND\nPANIC");
+        totalMissingPage++;
+        output += "FATAL ERROR\nPAGE NOT FOUND\nPANIC\n";
       }
 
-      System.out.println("==============================================\n");
+      output += "==============================================\n\n";
 
+      System.out.println(output);
+      JOptionPane.showMessageDialog(null, output);
     }
 
 

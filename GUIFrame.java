@@ -401,9 +401,9 @@ public class GUIFrame extends JFrame
           }
 
         Random rand = new Random();
-        int r = rand.nextInt(190);
-        int g = rand.nextInt(190);
-        int b = rand.nextInt(190);
+        int r = rand.nextInt(180);
+        int g = rand.nextInt(180);
+        int b = rand.nextInt(180);
         Color randomColor = new Color(r, g, b);
 
         int myId= id;

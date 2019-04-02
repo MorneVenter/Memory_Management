@@ -9,6 +9,7 @@ public class pageFrame
   public Color myColor;
   public int memoryAddress;
   public int pageNumber;
+  public double age=0;
 
   public pageFrame(int mem)
   {
@@ -49,4 +50,8 @@ public class pageFrame
     bar.setValue(0);
   }
 
+  public void updateText()
+  {
+    bar.setString(memoryAddress+": Pr"+programID+"-"+pageNumber);
+  }
 }

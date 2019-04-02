@@ -15,6 +15,7 @@ public class GUIFrame extends JFrame
     private JSlider slotValue;
     private JPanel controlPanel;
     private pageFrame[] myMemory;
+    private pageFrame[] myTLB;
     private JPanel memoryPanel;
     private int id=0;
     private int freeSlots;
@@ -23,6 +24,7 @@ public class GUIFrame extends JFrame
     private JPanel secondaryStorage;
     private int TotalMemory = 16;
     private int totalStorage = 85;
+    private int totalTLB = 4;
     private pageFrame[] myStorage;
     private JLabel storageText;
     private int freeStorageSlots;
@@ -33,6 +35,8 @@ public class GUIFrame extends JFrame
     private int selectedProgram=0;
     private JButton readButton;
     private JButton simButton;
+    private JPanel tlbPanel;
+    private int freeTLBslots =4;
     //stats
     private int totalReads=0;
     private int totalPageFualts=0;
@@ -41,6 +45,7 @@ public class GUIFrame extends JFrame
     private int pagesInMemory=0;
     private int pagesInStorage=0;
     private long startTime;
+
 
     public GUIFrame()
     {
@@ -57,6 +62,7 @@ public class GUIFrame extends JFrame
 
       myMemory = new pageFrame[TotalMemory];
       myStorage = new pageFrame[totalStorage];
+      myTLB = new pageFrame[totalTLB];
 
       primaryMemory = new JPanel();
       primaryMemory.setLayout(new GridLayout(0,1,2,2));
@@ -65,11 +71,18 @@ public class GUIFrame extends JFrame
       primaryMemory.setBackground(Color.gray);
 
       secondaryStorage = new JPanel();
-      //secondaryStorage.setLayout(new GridLayout(12,11));
       secondaryStorage.setLayout(new FlowLayout());
       secondaryStorage.setPreferredSize(new Dimension(760,570));
       secondaryStorage.setBorder(BorderFactory.createLineBorder(Color.black));
       secondaryStorage.setBackground(Color.gray);
+
+      tlbPanel = new JPanel();
+      tlbPanel.setLayout(new FlowLayout());
+      tlbPanel.setPreferredSize(new Dimension(150,150));
+      tlbPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+      tlbPanel.setBackground(Color.gray);
+      initTLB();
+
 
       setTitle("Memory Management");
   		setSize(windowX,windowY);
@@ -174,6 +187,7 @@ public class GUIFrame extends JFrame
       primaryMemory.add(rangeText);
       add(container);
       memoryPanel.add(primaryMemory);
+      memoryPanel.add(tlbPanel);
       memoryPanel.add(secondaryStorage);
       container.add(memoryPanel);
       controlPanel.add(slotValue);
@@ -262,6 +276,22 @@ public class GUIFrame extends JFrame
       }
     }
 
+    public void initTLB()
+    {
+      JLabel l1 = new JLabel("TLB");
+      tlbPanel.add(l1);
+      int kb = 0;
+      for (int x=0; x<totalTLB; x++)
+      {
+        myTLB[x] = new pageFrame(kb);
+        JProgressBar b1 = myTLB[x].getBar();
+        b1.setPreferredSize(new Dimension(125,25));
+        tlbPanel.add(b1);
+        kb++;
+
+      }
+    }
+
     public void initStorage()
     {
       int kb = TotalMemory*4;
@@ -319,6 +349,8 @@ public class GUIFrame extends JFrame
           output += "Page found in primary storage.\nAddress: " + myMemory[pageIndex].memoryAddress+"\n";
           totalPageFound++;
           pagesInMemory++;
+          //add to tlb
+          readTLB(myMemory[pageIndex]);
         }
         else if(whereFound==1)
         {
@@ -327,12 +359,14 @@ public class GUIFrame extends JFrame
           pagesInStorage++;
           output += "PAGE FAULT\n";
           output+= "Page found in secondary storage.\nAddress: " + myStorage[pageIndex].memoryAddress + "\n";
+          //add to tlb
 
-          //move pages
           int newAddress = swapStorageToRam(pageIndex);
           output += "Moved page to memory. New address in memory: " + myMemory[newAddress].memoryAddress+"\n";
-
+          readTLB(myMemory[newAddress]);
+          //move pages
         }
+
 
       }
       else
@@ -348,6 +382,69 @@ public class GUIFrame extends JFrame
         JOptionPane.showMessageDialog(null, output);
     }
 
+
+    private int[] TLBReads = {0,0,0,0};
+
+    public void addToTLB(pageFrame pg)
+    {
+
+      //free up a slot
+      if(freeTLBslots<=0)
+      {
+        int smallestIndex=0;
+        for(int i=0; i<TLBReads.length; i++)
+        {
+          if(TLBReads[i]<TLBReads[smallestIndex])
+            smallestIndex=i;
+        }
+
+        myTLB[smallestIndex].setInactive();
+
+        freeTLBslots++;
+        TLBReads[smallestIndex] = 0;
+        System.out.println("Record "+smallestIndex+" evicted from the TLB.");
+      }
+
+      int firstFreeIndex=0;
+      for(int i=0; i<myTLB.length; i++)
+      {
+        if(!myTLB[i].isOccupied)
+        {
+          firstFreeIndex=i;
+          i=myTLB.length+1;
+        }
+      }
+      myTLB[firstFreeIndex].memoryAddress = pg.memoryAddress;
+      myTLB[firstFreeIndex].setActive(pg.programID, pg.myColor, pg.pageNumber);
+      freeTLBslots--;
+      TLBReads[firstFreeIndex]=1;
+      System.out.println("Record added to TLB: Program " + pg.programID +", Page " + pg.pageNumber +".");
+
+
+    }
+
+    public void readTLB(pageFrame pg)
+    {
+      System.out.println("\n=====================TLB=======================");
+      boolean found =false;
+      for(int i=0; i<myTLB.length; i++)
+      {
+        if(myTLB[i].pageNumber==pg.pageNumber && myTLB[i].programID==pg.programID)
+        {
+          found = true;
+          TLBReads[i]++;
+          myTLB[i].memoryAddress = pg.memoryAddress;
+          myTLB[i].updateText();
+        }
+      }
+
+      if(!found)
+      {
+        addToTLB(pg);
+      }
+      System.out.println("TLB Number of Reads:\nRecord 0-"+TLBReads[0] + "\nRecord 1-"+TLBReads[1]+ "\nRecord 2-"+TLBReads[2]+ "\nRecord 3-"+TLBReads[3]);
+      System.out.println("===============================================\n");
+    }
 
     public int swapStorageToRam(int storageIndex)
     {
@@ -493,6 +590,8 @@ public class GUIFrame extends JFrame
 
       if(freeStorageSlots<1)
       {
+        int removedID =0;
+        int removedPage=0;
         boolean removeStor=false;
         while(!removeStor)
         {
@@ -501,10 +600,22 @@ public class GUIFrame extends JFrame
           if(myStorage[r].isOccupied)
           {
             System.out.println("Removed page from storage at address: " + myStorage[r].memoryAddress +" from Program ID: "+myStorage[r].programID+".");
+            removedID =  myStorage[r].programID;
+            removedPage=myStorage[r].pageNumber;
             myStorage[r].setInactive();
             freeStorageSlots++;
             removeStor=true;
+
           }
+        }
+        for(int x=0; x<myTLB.length; x++)
+        {
+          if(myTLB[x].programID == removedID && myTLB[x].pageNumber==removedPage)
+            {
+              myTLB[x].memoryAddress=-999;
+              TLBReads[x]=-1;
+              myTLB[x].updateText();
+            }
         }
       }
 
@@ -525,6 +636,15 @@ public class GUIFrame extends JFrame
 
       myStorage[next].setActive(id, mycolor, pagenum);
       freeStorageSlots--;
+
+      for(int x=0; x<myTLB.length; x++)
+      {
+        if(myTLB[x].programID == id && myTLB[x].pageNumber==pagenum)
+          {
+            myTLB[x].memoryAddress=myStorage[next].memoryAddress;
+            myTLB[x].updateText();
+          }
+      }
     }
 
 

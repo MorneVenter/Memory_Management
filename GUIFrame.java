@@ -274,7 +274,7 @@ public class GUIFrame extends JFrame
         }
         else //write new program
         {
-          numPages = generator.nextInt(16)+1;
+          numPages = generator.nextInt(10)+1;
           slotValue.setValue(numPages);
           addToMemory();
         }

@@ -30,6 +30,7 @@ public class GUIFrame extends JFrame
     private int freeStorageSlots;
     private JComboBox programList;
     private JComboBox pageList;
+    private JComboBox localGlobal;
     private List<Integer> listOfPages;
     private List<Integer> listOfPrograms;
     private int selectedProgram=0;
@@ -38,6 +39,7 @@ public class GUIFrame extends JFrame
     private JPanel tlbPanel;
     private int freeTLBslots =4;
     private int[] memoryReads;
+    private boolean localReplace = false;
     //stats
     private int totalReads=0;
     private int totalPageFualts=0;
@@ -67,6 +69,16 @@ public class GUIFrame extends JFrame
       myMemory = new pageFrame[TotalMemory];
       myStorage = new pageFrame[totalStorage];
       myTLB = new pageFrame[totalTLB];
+
+      localGlobal = new JComboBox();
+      localGlobal.addItem("Global");
+      localGlobal.addItem("Local");
+      localGlobal.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+          setLocalGlobal();
+      } });
+      localGlobal.setPreferredSize(new Dimension(150,40));
+
 
       primaryMemory = new JPanel();
       primaryMemory.setLayout(new GridLayout(0,1,2,2));
@@ -160,7 +172,7 @@ public class GUIFrame extends JFrame
       public void actionPerformed(ActionEvent e) {
           report();
       } });
-      reportButton.setPreferredSize(new Dimension(150,75));
+      reportButton.setPreferredSize(new Dimension(150,40));
 
       simButton = new JButton("Simulate");
       simButton.setBackground(Color.white);
@@ -170,7 +182,7 @@ public class GUIFrame extends JFrame
             simulate();
 
         } });
-      simButton.setPreferredSize(new Dimension(150,75));
+      simButton.setPreferredSize(new Dimension(150,40));
 
 
 
@@ -198,14 +210,23 @@ public class GUIFrame extends JFrame
       controlPanel.add(startButton);
       add(controlPanel);
       add(readPanel);
+      add(localGlobal);
       add(reportButton);
       add(simButton);
+
       setVisible(true);
       /////////////////
 
 
     }
 
+    public void setLocalGlobal()
+    {
+      if(localGlobal.getSelectedIndex()==0)
+        localReplace = false;
+      else
+        localReplace = true;
+    }
 
     public void report()
     {
@@ -227,6 +248,7 @@ public class GUIFrame extends JFrame
 
     public void simulate()
     {
+
       startButton.setEnabled(false);
       readButton.setEnabled(false);
       programList.setEnabled(false);
@@ -543,7 +565,10 @@ public class GUIFrame extends JFrame
         if(freeSlots<blocks)
           {
             System.out.println("Memory Full. Swapping page in memory to storage. Freeing 1 page.");
-            freeMemory(1);
+            if(localReplace)
+              freeLeastRecentlyUsedMemoryLOCAL(id, pageid);
+            else
+              freeMemory(1);
           }
 
         int insertedWhere=0;
@@ -568,6 +593,48 @@ public class GUIFrame extends JFrame
       freeLeastRecentlyUsedMemory(x);
     }
 
+    public void freeLeastRecentlyUsedMemoryLOCAL(int id, int pagenum)
+    {
+      int leastIndex=0;
+      boolean found = false;
+      //find first valid index with page
+      for(int x=0; x<memoryReads.length; x++)
+      {
+        if(memoryReads[x]>0 && myMemory[x].programID==id)
+          {
+            leastIndex=x;
+            x=memoryReads.length+1;
+            found=true;
+          }
+      }
+
+      if(!found)
+      {
+        freeLeastRecentlyUsedMemory(1);
+        return;
+      }
+
+
+      //find the index of the least recently used
+      for(int x=0; x<memoryReads.length; x++)
+      {
+        if(memoryReads[x]< memoryReads[leastIndex] && memoryReads[x]>0 && myMemory[x].programID==id)
+          {
+            leastIndex=x;
+            x=memoryReads.length;
+
+          }
+      }
+
+
+
+      System.out.println("Removed page at address: " + myMemory[leastIndex].memoryAddress +" from program ID: "+myMemory[leastIndex].programID+"; Page: " +myMemory[leastIndex].pageNumber);
+      addToStorage(myMemory[leastIndex].programID, myMemory[leastIndex].myColor, myMemory[leastIndex].pageNumber);
+      myMemory[leastIndex].setInactive();
+      memoryReads[leastIndex]=0;
+      freeSlots++;
+    }
+
     public void initMemoryReads()
     {
       for(int x=0; x<memoryReads.length; x++)
@@ -584,12 +651,15 @@ public class GUIFrame extends JFrame
         for(int x=0; x<memoryReads.length; x++)
         {
           if(memoryReads[x]>0)
-            leastIndex=x;
+            {
+              leastIndex=x;
+              x=memoryReads.length+1;
+            }
         }
         //find the index of the least recently used
         for(int x=0; x<memoryReads.length; x++)
         {
-          System.out.println(memoryReads[x]);
+
           if(memoryReads[x]<memoryReads[leastIndex] && memoryReads[x]>0)
             {
               leastIndex=x;
@@ -604,29 +674,6 @@ public class GUIFrame extends JFrame
         freeSlots++;
       }
     }
-
-    // Random rand = new Random();
-    // public void freeRandomMemory(int x)
-    // {
-    //   for (int i =0; i<x; i++ )
-    //   {
-    //       boolean removedMem=false;
-    //       while(!removedMem)
-    //       {
-    //
-    //           int r = rand.nextInt(TotalMemory);
-    //           if(myMemory[r].isOccupied)
-    //           {
-    //             System.out.println("Removed page at address: " + myMemory[r].memoryAddress +" from program ID: "+myMemory[r].programID+"; Page: " +myMemory[r].pageNumber);
-    //             addToStorage(myMemory[r].programID, myMemory[r].myColor, myMemory[r].pageNumber);
-    //             myMemory[r].setInactive();
-    //             freeSlots++;
-    //             removedMem=true;
-    //           }
-    //       }
-    //   }
-    // }
-
 
 
     public void addToStorage(int id, Color mycolor, int pagenum)

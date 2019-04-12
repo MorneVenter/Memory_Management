@@ -332,6 +332,17 @@ public class GUIFrame extends JFrame
       }
     }
 
+    public static int getMaxValue(int[] numbers)
+    {
+        int maxValue = numbers[0];
+        for(int i=1;i < numbers.length;i++)
+        {
+          if(numbers[i] > maxValue)
+      	     maxValue = numbers[i];
+        }
+        return maxValue;
+    }
+
     public void readPage(boolean popup)
     {
       totalReads++;
@@ -376,7 +387,7 @@ public class GUIFrame extends JFrame
           totalPageFound++;
           pagesInMemory++;
           //set Reads
-          memoryReads[pageIndex]++;
+          memoryReads[pageIndex] =getMaxValue(memoryReads)+1;
           //add to tlb
           readTLB(myMemory[pageIndex]);
         }
@@ -445,7 +456,7 @@ public class GUIFrame extends JFrame
       myTLB[firstFreeIndex].memoryAddress = pg.memoryAddress;
       myTLB[firstFreeIndex].setActive(pg.programID, pg.myColor, pg.pageNumber);
       freeTLBslots--;
-      TLBReads[firstFreeIndex]=1;
+      TLBReads[firstFreeIndex]= getMaxValue(TLBReads)+1;
       System.out.println("Record added to TLB: Program " + pg.programID +", Page " + pg.pageNumber +".");
 
 
@@ -460,7 +471,7 @@ public class GUIFrame extends JFrame
         if(myTLB[i].pageNumber==pg.pageNumber && myTLB[i].programID==pg.programID)
         {
           found = true;
-          TLBReads[i]++;
+          TLBReads[i] = getMaxValue(TLBReads)+1;
           myTLB[i].memoryAddress = pg.memoryAddress;
           myTLB[i].updateText();
         }
@@ -646,32 +657,32 @@ public class GUIFrame extends JFrame
 
       for(int i=0; i<t; i++)
       {
-        int leastIndex=0;
-        //find first valid index with page
-        for(int x=0; x<memoryReads.length; x++)
-        {
-          if(memoryReads[x]>0)
-            {
-              leastIndex=x;
-              x=memoryReads.length+1;
-            }
-        }
-        //find the index of the least recently used
-        for(int x=0; x<memoryReads.length; x++)
-        {
+          int leastIndex=0;
+          //find first valid index with page
+          for(int x=0; x<memoryReads.length; x++)
+          {
+            if(memoryReads[x]>0)
+              {
+                leastIndex=x;
+                x=memoryReads.length+1;
+              }
+          }
+          //find the index of the least recently used
+          for(int x=0; x<memoryReads.length; x++)
+          {
 
-          if(memoryReads[x]<memoryReads[leastIndex] && memoryReads[x]>0)
-            {
-              leastIndex=x;
-              x=memoryReads.length;
-            }
-        }
+            if(memoryReads[x]<memoryReads[leastIndex] && memoryReads[x]>0)
+              {
+                leastIndex=x;
+                x=memoryReads.length;
+              }
+          }
 
-        System.out.println("Removed page at address: " + myMemory[leastIndex].memoryAddress +" from program ID: "+myMemory[leastIndex].programID+"; Page: " +myMemory[leastIndex].pageNumber);
-        addToStorage(myMemory[leastIndex].programID, myMemory[leastIndex].myColor, myMemory[leastIndex].pageNumber);
-        myMemory[leastIndex].setInactive();
-        memoryReads[leastIndex]=0;
-        freeSlots++;
+          System.out.println("Removed page at address: " + myMemory[leastIndex].memoryAddress +" from program ID: "+myMemory[leastIndex].programID+"; Page: " +myMemory[leastIndex].pageNumber);
+          addToStorage(myMemory[leastIndex].programID, myMemory[leastIndex].myColor, myMemory[leastIndex].pageNumber);
+          myMemory[leastIndex].setInactive();
+          memoryReads[leastIndex]=0;
+          freeSlots++;
       }
     }
 

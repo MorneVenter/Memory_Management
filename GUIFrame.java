@@ -61,7 +61,7 @@ public class GUIFrame extends JFrame
 
       memoryText = new JLabel("Total Memory: "+TotalMemory*4+"KB");
       storageText = new JLabel("Total Storage: "+totalStorage*4+"KB");
-      JLabel rangeText = new JLabel("Memory 0-" + (TotalMemory*4 -1) + ";      Storage " + TotalMemory*4 + "-" + ((totalStorage+TotalMemory)*4));
+      JLabel rangeText = new JLabel("Memory 0-" + (TotalMemory*4 -1) + ";      Storage 0-" + ((totalStorage)*4));
 
       freeSlots = TotalMemory;
       freeStorageSlots=totalStorage;
@@ -320,7 +320,7 @@ public class GUIFrame extends JFrame
 
     public void initStorage()
     {
-      int kb = TotalMemory*4;
+      int kb = 0;
       for (int x=0; x<totalStorage; x++)
       {
         myStorage[x] = new pageFrame(kb);
